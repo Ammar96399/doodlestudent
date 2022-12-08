@@ -6,3 +6,8 @@ services:
       dockerfile: docker/Dockerfile
     ports:
       - "8888:80"
+    networks:
+      - tlc-network
+networks:
+  tlc-network:
+    external: true

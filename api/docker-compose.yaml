@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   db:
+    container_name: 'tlc.api.db'
     image: mysql
     ports:
       - "3306:3306"
@@ -9,14 +10,43 @@ services:
       - MYSQL_DATABASE=tlc
       - MYSQL_USER=tlc
       - MYSQL_PASSWORD=tlc
+    networks:
+      - tlc-network
   etherpad:
+    container_name: 'tlc.api.ether'
     image: etherpad/etherpad:latest
     ports:
       - "9001:9001"
     volumes:
       - ./APIKEY.txt:/opt/etherpad-lite/APIKEY.txt
+    networks:
+      - tlc-network
   mail:
+    container_name: 'tlc.api.mail'
     image: bytemark/smtp
     restart: always
     ports:
       - "2525:25"
+    networks:
+      - tlc-network
+  pma:
+    container_name: 'tlc.api.pma'
+    image: phpmyadmin/phpmyadmin:latest
+    hostname: pma.site # suppress warning of Apach HostName on launch
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=tlc
+      - PMA_PASSWORD=tlc
+    ports:
+      - "8889:80" # exposed on localhost to be accessed via port 8889
+    networks:
+      - tlc-network
+  api:
+    # TODO Add this to compile in docker
+networks:
+  tlc-network:
+    external: false
+    name: tlc-network
